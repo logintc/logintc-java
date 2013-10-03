@@ -23,7 +23,7 @@ import java.util.Map;
 public class LoginTC {
 
     private static final String NAME = "LoginTC-Java";
-    private static final String VERSION = "1.0.0";
+    private static final String VERSION = "1.0.1";
 
     /**
      * A generic LoginTC client exception.
@@ -402,6 +402,23 @@ public class LoginTC {
             adminRestClient.put(String.format("/api/domains/%s/users", domainId), jsonArray.toString());
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+    }
+    
+    /**
+     * Remove a user from a domain.
+     * 
+     * @param domainId The target domain identifier.
+     * @param userId The targert user identifier.
+     * @throws LoginTCException
+     */
+    public void removeDomainUser(String domainId, String userId) throws LoginTCException {
+        try {
+            adminRestClient.delete(String.format("/api/domains/%s/users/%s", domainId, userId));
         } catch (RestAdminRestClientException e) {
             throw exceptionFactory.createException(e);
         } catch (AdminRestClientException e) {

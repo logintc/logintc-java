@@ -21,8 +21,8 @@ directory.
   
 You can also download prebuilt JARs:
 
-  * [logintc-java-1.0.0.jar](https://www.logintc.com/downloads/logintc-java-1.0.0.jar)
-  * [logintc-java-1.0.0-jar-with-dependencies.jar](https://www.logintc.com/downloads/logintc-java-1.0.0-jar-with-dependencies.jar)
+  * [logintc-java-1.0.1.jar](https://www.logintc.com/downloads/logintc-java-1.0.1.jar)
+  * [logintc-java-1.0.1-jar-with-dependencies.jar](https://www.logintc.com/downloads/logintc-java-1.0.1-jar-with-dependencies.jar)
 
 Example
 =======

@@ -221,6 +221,17 @@ public class LoginTCTest {
 
         verify(mockedAdminRestClient).put(path, body);
     }
+    
+    @Test
+    public void testRemoveDomainUser() throws AdminRestClientException, LoginTCException {
+        String path = String.format("/api/domains/%s/users/%s", domainId, userId);
+
+        when(mockedAdminRestClient.delete(path)).thenReturn(null);
+        
+        client.removeDomainUser(domainId, userId);
+        
+        verify(mockedAdminRestClient).delete(path);
+    }
 
     @Test
     public void testUpdateUser() throws AdminRestClientException, LoginTCException {
