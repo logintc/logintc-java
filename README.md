@@ -11,7 +11,7 @@ Installation
 Compile a JAR using [Maven](http://maven.apache.org/) and add it to your build
 path:
 
-    git clone git@github.com:logintc/logintc-java
+    git clone https://github.com/logintc/logintc-java.git
     cd logintc-java
     mvn install
 
