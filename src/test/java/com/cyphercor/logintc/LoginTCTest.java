@@ -6,6 +6,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.cyphercor.logintc.AdminRestClient.AdminRestClientException;
 import com.cyphercor.logintc.AdminRestClient.RestAdminRestClientException;
 import com.cyphercor.logintc.LoginTC.LoginTCException;
@@ -13,15 +22,6 @@ import com.cyphercor.logintc.LoginTC.NoTokenLoginTCException;
 import com.cyphercor.logintc.resource.Session;
 import com.cyphercor.logintc.resource.Token;
 import com.cyphercor.logintc.resource.User;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Tests for LoginTC client.
@@ -64,7 +64,8 @@ public class LoginTCTest {
     @Test
     public void testCreateSession() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/sessions", domainId);
-        String body = createJson("{'attributes':[{'value':'Quinoa','key':'Product'},{'value':'42','key':'Price'}],'user':{'id':'%s'}}", userId);
+        String body = createJson("{'attributes':[{'value':'Quinoa','key':'Product'},{'value':'42','key':'Price'}],'user':{'id':'%s'}}",
+                userId);
         String response = createJson("{'id':'%s','state':'pending'}", sessionId);
 
         when(mockedAdminRestClient.post(path, body)).thenReturn(response);
@@ -83,7 +84,8 @@ public class LoginTCTest {
     @Test(expected = NoTokenLoginTCException.class)
     public void testCreateSessionNoTokenLoginTCException() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/sessions", domainId, userId);
-        String body = createJson("{'attributes':[{'value':'Quinoa','key':'Product'},{'value':'42','key':'Price'}],'user':{'id':'%s'}}", userId);
+        String body = createJson("{'attributes':[{'value':'Quinoa','key':'Product'},{'value':'42','key':'Price'}],'user':{'id':'%s'}}",
+                userId);
 
         when(mockedAdminRestClient.post(path, body)).thenThrow(
                 new RestAdminRestClientException(404, createJson("{'errors':[{'code':'api.error.notfound.token','message':''}]}")));
@@ -221,15 +223,15 @@ public class LoginTCTest {
 
         verify(mockedAdminRestClient).put(path, body);
     }
-    
+
     @Test
     public void testRemoveDomainUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users/%s", domainId, userId);
 
         when(mockedAdminRestClient.delete(path)).thenReturn(null);
-        
+
         client.removeDomainUser(domainId, userId);
-        
+
         verify(mockedAdminRestClient).delete(path);
     }
 

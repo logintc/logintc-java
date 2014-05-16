@@ -1,32 +1,30 @@
 
 package com.cyphercor.logintc;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.conn.ssl.StrictHostnameVerifier;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.SingleClientConnManager;
-import org.apache.http.util.EntityUtils;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
 /**
  * HTTP REST client for LoginTC Admin.
  */
-@SuppressWarnings("deprecation")
 class AdminRestClient {
     private static final String CONTENT_TYPE = "application/vnd.logintc.v1+json";
 
@@ -88,7 +86,7 @@ class AdminRestClient {
     private String apiKey = null;
     private String userAgent = null;
 
-    private HttpClient httpClient = null;
+    private DefaultHttpClient httpClient = null;
 
     public AdminRestClient(String scheme, String host, Integer port, String apiKey, String userAgent) {
         this.scheme = scheme;
@@ -97,21 +95,26 @@ class AdminRestClient {
         this.apiKey = apiKey;
         this.userAgent = userAgent;
 
-        if (scheme.equals("https")) {
-            SchemeRegistry registry = new SchemeRegistry();
-            SSLSocketFactory ssf = SSLSocketFactory.getSocketFactory();
-            ssf.setHostnameVerifier(new StrictHostnameVerifier());
-            registry.register(new Scheme("https", ssf, port));
-            SingleClientConnManager mgr = new SingleClientConnManager((new DefaultHttpClient()).getParams(), registry);
-            httpClient = new DefaultHttpClient(mgr, (new DefaultHttpClient()).getParams());
-        } else {
-            httpClient = new DefaultHttpClient();
-        }
+        httpClient = new DefaultHttpClient();
+    }
 
+    public void setProxy(String proxyHost, int proxyPort) {
+        HttpHost proxy = new HttpHost(proxyHost, proxyPort, "http");
+        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+    }
+
+    public void setProxy(String proxyHost, int proxyPort, String proxyUser, String proxyPassword) {
+        CredentialsProvider credsProvider = httpClient.getCredentialsProvider();
+        credsProvider.setCredentials(new AuthScope(proxyHost, proxyPort), new UsernamePasswordCredentials(proxyUser, proxyPassword));
+        httpClient.setCredentialsProvider(credsProvider);
+
+        HttpHost proxy = new HttpHost(proxyHost, proxyPort, "http");
+        httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
     }
 
     public String get(String path) throws AdminRestClientException {
         HttpGet request = new HttpGet(genUri(path));
+
         request.setHeader("Accept", CONTENT_TYPE);
         return new String(execute(request));
     }
@@ -227,4 +230,5 @@ class AdminRestClient {
             throw new InternalAdminRestClientException(e);
         }
     }
+
 }

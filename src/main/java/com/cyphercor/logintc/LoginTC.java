@@ -23,7 +23,7 @@ import java.util.Map;
 public class LoginTC {
 
     private static final String NAME = "LoginTC-Java";
-    private static final String VERSION = "1.0.1";
+    private static final String VERSION = "1.0.2";
 
     /**
      * A generic LoginTC client exception.
@@ -110,8 +110,7 @@ public class LoginTC {
 
                 if (errorCode.equals("api.error.notfound.token")) {
                     exception = new NoTokenLoginTCException(errorCode, errorMessage);
-                }
-                else {
+                } else {
                     exception = new ApiLoginTCException(errorCode, errorMessage);
                 }
             } catch (JSONException e) {
@@ -198,12 +197,10 @@ public class LoginTC {
             if (hostParts.length > 1) {
                 host = hostParts[0];
                 port = Integer.parseInt(hostParts[1]);
-            }
-            else {
+            } else {
                 if (secure) {
                     port = 443;
-                }
-                else {
+                } else {
                     port = 80;
                 }
             }
@@ -212,6 +209,24 @@ public class LoginTC {
         }
 
         this.adminRestClient = adminRestClient;
+    }
+
+    /**
+     * @param proxyHost
+     * @param proxyPort
+     */
+    public void setProxy(String proxyHost, int proxyPort) {
+        adminRestClient.setProxy(proxyHost, proxyPort);
+    }
+    
+    /**
+     * @param proxyHost
+     * @param proxyPort
+     * @param proxyUser
+     * @param proxyPassword
+     */
+    public void setProxy(String proxyHost, int proxyPort, String proxyUser, String proxyPassword) {
+        adminRestClient.setProxy(proxyHost, proxyPort, proxyUser, proxyPassword);
     }
 
     /**
@@ -408,7 +423,7 @@ public class LoginTC {
             throw exceptionFactory.createException(e);
         }
     }
-    
+
     /**
      * Remove a user from a domain.
      * 
