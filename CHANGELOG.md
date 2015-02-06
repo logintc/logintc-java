@@ -1,5 +1,10 @@
 Changelog
 =========
+## 1.1.0
+
+Released on Feb 6, 2015
+
+ * Added ping, organization and domain API calls.
 
 ## 1.0.2
 

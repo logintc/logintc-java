@@ -3,6 +3,8 @@ package com.cyphercor.logintc;
 
 import com.cyphercor.logintc.AdminRestClient.AdminRestClientException;
 import com.cyphercor.logintc.AdminRestClient.RestAdminRestClientException;
+import com.cyphercor.logintc.resource.Domain;
+import com.cyphercor.logintc.resource.Organization;
 import com.cyphercor.logintc.resource.Session;
 import com.cyphercor.logintc.resource.Token;
 import com.cyphercor.logintc.resource.User;
@@ -156,6 +158,17 @@ public class LoginTC {
     }
 
     /**
+     * Serialize a string into JSON.
+     * 
+     * @param json JSON string.
+     * @return The parsed JSON array.
+     * @throws JSONException
+     */
+    private JSONArray getJsonArray(String json) throws JSONException {
+        return (JSONArray) new JSONTokener(json).nextValue();
+    }
+
+    /**
      * @param apiKey
      */
     public LoginTC(String apiKey) {
@@ -218,7 +231,7 @@ public class LoginTC {
     public void setProxy(String proxyHost, int proxyPort) {
         adminRestClient.setProxy(proxyHost, proxyPort);
     }
-    
+
     /**
      * @param proxyHost
      * @param proxyPort
@@ -665,4 +678,174 @@ public class LoginTC {
             throw exceptionFactory.createException(e);
         }
     }
+
+    /**
+     * Get Ping status.
+     * 
+     * @return Status (true if OK).
+     * @throws LoginTCException
+     */
+    public boolean getPing() throws LoginTCException {
+        boolean status = false;
+        try {
+            JSONObject jsonObject = getJson(adminRestClient.get("/api/ping"));
+            if (jsonObject.getString("status").equals("OK"))
+            {
+                status = true;
+            }
+
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return status;
+    }
+
+    /**
+     * @return The requested Organization
+     * @throws LoginTCException
+     */
+    public Organization getOrganization() throws LoginTCException {
+        Organization organization = null;
+        try {
+            JSONObject jsonObject = getJson(adminRestClient.get("/api/organization"));
+            String organizationName = jsonObject.getString("name");
+            organization = new Organization(organizationName);
+
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return organization;
+    }
+
+    /**
+     * Get domain info.
+     * 
+     * @param domainId The domain identifier.
+     * @return The requested Domain
+     * @throws LoginTCException
+     */
+    public Domain getDomain(String domainId) throws LoginTCException {
+        Domain domain = null;
+        try {
+            JSONObject jsonObject = getJson(adminRestClient.get(String.format("/api/domains/%s", domainId)));
+            String id = jsonObject.getString("id");
+            String name = jsonObject.getString("name");
+            String type = jsonObject.getString("type");
+            String keyType = jsonObject.getString("keyType");
+            domain = new Domain(id, name, type, keyType);
+
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return domain;
+    }
+
+    /**
+     * Get domain image.
+     * 
+     * @param domainId The domain identifier.
+     * @return The requested image as a byte array
+     * @throws LoginTCException
+     */
+    public byte[] getDomainImage(String domainId) throws LoginTCException {
+        byte[] image = null;
+        try {
+            image = adminRestClient.getBytes(String.format("/api/domains/%s/image", domainId), "image/png");
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return image;
+    }
+
+    /**
+     * Get user info.
+     * 
+     * @param domainId The domain identifier.
+     * @param userId The user's identifier.
+     * @return The requested user.
+     * @throws LoginTCException
+     */
+    public User getDomainUser(String domainId, String userId) throws LoginTCException {
+        User user = null;
+        try {
+            JSONObject jsonObject = getJson(adminRestClient.get(String.format("/api/domains/%s/users/%s", domainId, userId)));
+            JSONArray jsonDomains = jsonObject.getJSONArray("domains");
+
+            List<String> domains = new ArrayList<String>();
+
+            for (int i = 0; i < jsonDomains.length(); i++) {
+                domains.add(jsonDomains.getString(i));
+            }
+
+            String id = jsonObject.getString("id");
+            String username = jsonObject.getString("username");
+            String email = jsonObject.getString("email");
+            String name = jsonObject.getString("name");
+
+            user = new User(id, username, email, name, domains);
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return user;
+    }
+
+    /**
+     * Get list of users from domain
+     * 
+     * @param domainId The domain identifier
+     * @return List of users in the domain
+     * @throws LoginTCException
+     */
+    public List<User> getDomainUsers(String domainId) throws LoginTCException {
+        List<User> users = new ArrayList<User>();
+        try {
+            JSONArray jsonArray = getJsonArray(adminRestClient.get(String.format("/api/domains/%s/users", domainId)));
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject userObject = jsonArray.getJSONObject(i);
+                JSONArray jsonDomains = userObject.getJSONArray("domains");
+                List<String> domains = new ArrayList<String>();
+                for (int j = 0; j < jsonDomains.length(); j++) {
+                    domains.add(jsonDomains.getString(j));
+                }
+                String id = userObject.getString("id");
+                String username = userObject.getString("username");
+                String email = userObject.getString("email");
+                String name = userObject.getString("name");
+                users.add(new User(id, username, email, name, domains));
+            }
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return users;
+    }
+
 }

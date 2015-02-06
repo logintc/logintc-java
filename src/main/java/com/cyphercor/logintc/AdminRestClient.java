@@ -119,6 +119,13 @@ class AdminRestClient {
         return new String(execute(request));
     }
 
+    public byte[] getBytes(String path, String acceptHeader) throws AdminRestClientException {
+        HttpGet request = new HttpGet(genUri(path));
+
+        request.setHeader("Accept", acceptHeader);
+        return execute(request);
+    }
+
     public String post(String path, String body) throws AdminRestClientException {
         HttpPost request = new HttpPost(genUri(path));
         request.setHeader("Accept", CONTENT_TYPE);

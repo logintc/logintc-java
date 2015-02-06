@@ -19,6 +19,8 @@ import com.cyphercor.logintc.AdminRestClient.AdminRestClientException;
 import com.cyphercor.logintc.AdminRestClient.RestAdminRestClientException;
 import com.cyphercor.logintc.LoginTC.LoginTCException;
 import com.cyphercor.logintc.LoginTC.NoTokenLoginTCException;
+import com.cyphercor.logintc.resource.Domain;
+import com.cyphercor.logintc.resource.Organization;
 import com.cyphercor.logintc.resource.Session;
 import com.cyphercor.logintc.resource.Token;
 import com.cyphercor.logintc.resource.User;
@@ -38,6 +40,12 @@ public class LoginTCTest {
     private final String userUsername = "testuser1";
     private final String userEmail = "testuser1@cyphercor.com";
     private final String userName = "Test User";
+
+    private final String domainName = "Cisco ASA";
+    private final String domainType = "RADIUS";
+    private final String domainKeyType = "PIN";
+
+    private final String organizationName = "Chrome Stage";
 
     private final String tokenCode = "89hto1p45";
 
@@ -250,4 +258,98 @@ public class LoginTCTest {
 
         verify(mockedAdminRestClient).put(path, body);
     }
+
+    @Test
+    public void testGetPing() throws AdminRestClientException, LoginTCException {
+        String path = "/api/ping";
+        String response = createJson("{\"status\": \"OK\"}");
+
+        when(mockedAdminRestClient.get(path)).thenReturn(response);
+
+        boolean status = client.getPing();
+        assertEquals(true, status);
+        verify(mockedAdminRestClient).get(path);
+    }
+
+    @Test
+    public void testGetOrganization() throws AdminRestClientException, LoginTCException {
+        String path = "/api/organization";
+        String response = createJson("{\"name\": \"%s\"}", organizationName);
+
+        when(mockedAdminRestClient.get(path)).thenReturn(response);
+
+        Organization organization = client.getOrganization();
+        assertEquals("Chrome Stage", organization.getName());
+        verify(mockedAdminRestClient).get(path);
+    }
+
+    @Test
+    public void testGetDomain() throws AdminRestClientException, LoginTCException {
+        String path = String.format("/api/domains/%s", domainId);
+        String response = createJson("{'id':'%s','name':'%s','type':'%s','keyType':'%s'}", domainId, domainName, domainType, domainKeyType);
+
+        when(mockedAdminRestClient.get(path)).thenReturn(response);
+
+        Domain domain = client.getDomain(domainId);
+        assertEquals(domainId, domain.getId());
+        assertEquals(domainName, domain.getName());
+        assertEquals(domainType, domain.getType());
+        assertEquals(domainKeyType, domain.getKeyType());
+        verify(mockedAdminRestClient).get(path);
+    }
+
+    @Test
+    public void testGetDomainUser() throws AdminRestClientException, LoginTCException {
+        String path = String.format("/api/domains/%s/users/%s", domainId, userId);
+        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s']}", userId, userUsername,
+                userEmail, userName, domainId);
+
+        when(mockedAdminRestClient.get(path)).thenReturn(response);
+
+        User user = client.getDomainUser(domainId, userId);
+        assertEquals(userUsername, user.getUsername());
+        assertEquals(userEmail, user.getEmail());
+        assertEquals(userName, user.getName());
+        assertEquals(1, user.getDomains().size());
+        assertEquals(domainId, user.getDomains().get(0));
+        verify(mockedAdminRestClient).get(path);
+    }
+
+    @Test
+    public void testGetDomainUsers() throws AdminRestClientException, LoginTCException {
+        String path = String.format("/api/domains/%s/users", domainId);
+        String response = createJson(
+                "[{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s']},{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s']}]",
+                userId, userUsername, userEmail, userName, domainId, userId, userUsername, userEmail, userName, domainId);
+        when(mockedAdminRestClient.get(path)).thenReturn(response);
+
+        List<User> users = client.getDomainUsers(domainId);
+
+        assertEquals(2, users.size());
+        assertEquals(userUsername, users.get(0).getUsername());
+        assertEquals(userEmail, users.get(0).getEmail());
+        assertEquals(userName, users.get(0).getName());
+        assertEquals(1, users.get(0).getDomains().size());
+        assertEquals(domainId, users.get(0).getDomains().get(0));
+
+        assertEquals(userUsername, users.get(1).getUsername());
+        assertEquals(userEmail, users.get(1).getEmail());
+        assertEquals(userName, users.get(1).getName());
+        assertEquals(1, users.get(1).getDomains().size());
+        assertEquals(domainId, users.get(1).getDomains().get(0));
+        verify(mockedAdminRestClient).get(path);
+    }
+
+    @Test
+    public void testGetDomainImage() throws AdminRestClientException, LoginTCException {
+        String path = String.format("/api/domains/%s/image", domainId);
+        String response = "Hello World!";
+        when(mockedAdminRestClient.getBytes(path, "image/png")).thenReturn(response.getBytes());
+
+        byte[] image = client.getDomainImage(domainId);
+        String imageText = new String(image);
+        assertEquals(response, imageText);
+        verify(mockedAdminRestClient).getBytes(path, "image/png");
+    }
+
 }
