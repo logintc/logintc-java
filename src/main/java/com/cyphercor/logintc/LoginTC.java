@@ -544,6 +544,27 @@ public class LoginTC {
      */
     public Session createSession(String domainId, String userId, Map<String, String> attributes) throws NoTokenLoginTCException,
             LoginTCException {
+        return createSession(domainId, userId, attributes, null, null);
+    }
+
+    /**
+     * Create a LoginTC request.
+     * 
+     * @param domainId The target domain identifier.
+     * @param userId The target user identifier.
+     * @param attributes Map of attributes to be included in the LoginTC
+     *            request. Null is permitted for no attributes.
+     * @param ipAddress The IP Address of the user originating the request
+     *            (optional)
+     * @param bypassCode A 9 digit code to bypass device authentication
+     *            (optional)
+     * @return Newly created session.
+     * @throws NoTokenLoginTCException
+     * @throws LoginTCException
+     */
+    public Session createSession(String domainId, String userId, Map<String, String> attributes, String ipAddress, String bypassCode)
+            throws NoTokenLoginTCException,
+            LoginTCException {
         Session session = null;
 
         try {
@@ -564,6 +585,14 @@ public class LoginTC {
 
             jsonObject.put("user", jsonUserObject);
             jsonObject.put("attributes", attributesArray);
+
+            if (ipAddress != null && !ipAddress.isEmpty()) {
+                jsonObject.put("ipAddress", ipAddress);
+            }
+
+            if (bypassCode != null && !bypassCode.isEmpty()) {
+                jsonObject.put("bypasscode", bypassCode);
+            }
 
             jsonObject = getJson(adminRestClient.post(String.format("/api/domains/%s/sessions", domainId), jsonObject.toString()));
 
@@ -596,6 +625,29 @@ public class LoginTC {
     public Session createSessionWithUsername(String domainId, String username, Map<String, String> attributes)
             throws NoTokenLoginTCException,
             LoginTCException {
+        return createSessionWithUsername(domainId, username, attributes, null, null);
+    }
+
+    /**
+     * Create a LoginTC request.
+     * 
+     * @param domainId The target domain identifier.
+     * @param username The target user username.
+     * @param attributes Map of attributes to be included in the LoginTC
+     *            request. Null is permitted for no attributes.
+     * @param ipAddress The IP Address of the user originating the request
+     *            (optional)
+     * @param bypassCode A 9 digit code to bypass device authentication
+     *            (optional)
+     * @param username The target user username.
+     * @return Newly created session.
+     * @throws NoTokenLoginTCException
+     * @throws LoginTCException
+     */
+    public Session createSessionWithUsername(String domainId, String username, Map<String, String> attributes, String ipAddress,
+            String bypassCode)
+            throws NoTokenLoginTCException,
+            LoginTCException {
         Session session = null;
 
         try {
@@ -616,6 +668,14 @@ public class LoginTC {
 
             jsonObject.put("user", jsonUserObject);
             jsonObject.put("attributes", attributesArray);
+
+            if (ipAddress != null && !ipAddress.isEmpty()) {
+                jsonObject.put("ipAddress", ipAddress);
+            }
+
+            if (bypassCode != null && !bypassCode.isEmpty()) {
+                jsonObject.put("bypasscode", bypassCode);
+            }
 
             jsonObject = getJson(adminRestClient.post(String.format("/api/domains/%s/sessions", domainId), jsonObject.toString()));
 
@@ -689,8 +749,7 @@ public class LoginTC {
         boolean status = false;
         try {
             JSONObject jsonObject = getJson(adminRestClient.get("/api/ping"));
-            if (jsonObject.getString("status").equals("OK"))
-            {
+            if (jsonObject.getString("status").equals("OK")) {
                 status = true;
             }
 

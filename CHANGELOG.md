@@ -1,5 +1,11 @@
 Changelog
 =========
+## 1.1.1
+
+Released on August 26th, 2015
+
+ * Added ipAddress and bypass codes support
+
 ## 1.1.0
 
 Released on Feb 6, 2015
