@@ -1,5 +1,11 @@
 Changelog
 =========
+## 1.1.2
+
+Released on September 8th, 2015
+
+ * Add full bypass codes support
+
 ## 1.1.1
 
 Released on August 26th, 2015

@@ -1,23 +1,27 @@
 
 package com.cyphercor.logintc;
 
-import com.cyphercor.logintc.AdminRestClient.AdminRestClientException;
-import com.cyphercor.logintc.AdminRestClient.RestAdminRestClientException;
-import com.cyphercor.logintc.resource.Domain;
-import com.cyphercor.logintc.resource.Organization;
-import com.cyphercor.logintc.resource.Session;
-import com.cyphercor.logintc.resource.Token;
-import com.cyphercor.logintc.resource.User;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import com.cyphercor.logintc.AdminRestClient.AdminRestClientException;
+import com.cyphercor.logintc.AdminRestClient.RestAdminRestClientException;
+import com.cyphercor.logintc.resource.BypassCode;
+import com.cyphercor.logintc.resource.Domain;
+import com.cyphercor.logintc.resource.Organization;
+import com.cyphercor.logintc.resource.Session;
+import com.cyphercor.logintc.resource.Token;
+import com.cyphercor.logintc.resource.User;
 
 /**
  * LoginTC Admin client to manage LoginTC users, domains, tokens and sessions.
@@ -25,7 +29,9 @@ import java.util.Map;
 public class LoginTC {
 
     private static final String NAME = "LoginTC-Java";
-    private static final String VERSION = "1.0.2";
+    private static final String VERSION = "1.1.2";
+
+    private static final SimpleDateFormat DATE_FORMAT_ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     /**
      * A generic LoginTC client exception.
@@ -83,9 +89,8 @@ public class LoginTC {
     }
 
     /**
-     * Exception for failure because of no valid token for the specified user
-     * and domain. This means the token doesn't exist, it's not yet loaded, or
-     * it has been revoked.
+     * Exception for failure because of no valid token for the specified user and domain. This means the token doesn't exist, it's not yet
+     * loaded, or it has been revoked.
      */
     public class NoTokenLoginTCException extends ApiLoginTCException {
         private static final long serialVersionUID = -5878018652693276417L;
@@ -127,6 +132,10 @@ public class LoginTC {
         }
 
         protected LoginTCException createException(JSONException e) {
+            return new InternalLoginTCException(e);
+        }
+
+        protected LoginTCException createException(ParseException e) {
             return new InternalLoginTCException(e);
         }
     }
@@ -262,12 +271,22 @@ public class LoginTC {
                 domains.add(jsonDomains.getString(i));
             }
 
+            List<String> bypassCodes = new ArrayList<String>();
+
+            if (jsonObject.has("bypasscodes")) {
+                JSONArray jsonBypassCodes = jsonObject.getJSONArray("bypasscodes");
+
+                for (int i = 0; i < jsonBypassCodes.length(); i++) {
+                    bypassCodes.add(jsonBypassCodes.getString(i));
+                }
+            }
+
             String id = jsonObject.getString("id");
             String username = jsonObject.getString("username");
             String email = jsonObject.getString("email");
             String name = jsonObject.getString("name");
 
-            user = new User(id, username, email, name, domains);
+            user = new User(id, username, email, name, domains, bypassCodes);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -306,12 +325,22 @@ public class LoginTC {
                 domains.add(jsonDomains.getString(i));
             }
 
+            List<String> bypassCodes = new ArrayList<String>();
+
+            if (jsonObject.has("bypasscodes")) {
+                JSONArray jsonBypassCodes = jsonObject.getJSONArray("bypasscodes");
+
+                for (int i = 0; i < jsonBypassCodes.length(); i++) {
+                    bypassCodes.add(jsonBypassCodes.getString(i));
+                }
+            }
+
             String id = jsonObject.getString("id");
             username = jsonObject.getString("username");
             email = jsonObject.getString("email");
             name = jsonObject.getString("name");
 
-            user = new User(id, username, email, name, domains);
+            user = new User(id, username, email, name, domains, bypassCodes);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -355,12 +384,22 @@ public class LoginTC {
                 domains.add(jsonDomains.getString(i));
             }
 
+            List<String> bypassCodes = new ArrayList<String>();
+
+            if (jsonObject.has("bypasscodes")) {
+                JSONArray jsonBypassCodes = jsonObject.getJSONArray("bypasscodes");
+
+                for (int i = 0; i < jsonBypassCodes.length(); i++) {
+                    bypassCodes.add(jsonBypassCodes.getString(i));
+                }
+            }
+
             String id = jsonObject.getString("id");
             String username = jsonObject.getString("username");
             email = jsonObject.getString("email");
             name = jsonObject.getString("name");
 
-            user = new User(id, username, email, name, domains);
+            user = new User(id, username, email, name, domains, bypassCodes);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -406,11 +445,9 @@ public class LoginTC {
     }
 
     /**
-     * Set a domain's users. If the provided users do not yet exist then they
-     * will be created in the Organization. Existing organization users will be
-     * added to the domain. The existing domain users that are not present in
-     * the users parameter will be removed from the domain and their tokens will
-     * be revoked.
+     * Set a domain's users. If the provided users do not yet exist then they will be created in the Organization. Existing organization
+     * users will be added to the domain. The existing domain users that are not present in the users parameter will be removed from the
+     * domain and their tokens will be revoked.
      * 
      * @param users A list of users that should belong to the domain.
      * @throws LoginTCException
@@ -455,8 +492,7 @@ public class LoginTC {
     }
 
     /**
-     * Create a user token if one does not exist or if it has been revoked. Does
-     * nothing if the token is already active or not yet loaded.
+     * Create a user token if one does not exist or if it has been revoked. Does nothing if the token is already active or not yet loaded.
      * 
      * @param domainId The target domain identifier.
      * @param userId The target user identifier.
@@ -485,8 +521,7 @@ public class LoginTC {
     }
 
     /**
-     * Gets a user's token information. Throws a LoginTCException if a token
-     * does not exist or has been revoked.
+     * Gets a user's token information. Throws a LoginTCException if a token does not exist or has been revoked.
      * 
      * @param domainId The target domain identifier.
      * @param userId The target user identifier.
@@ -536,8 +571,7 @@ public class LoginTC {
      * 
      * @param domainId The target domain identifier.
      * @param userId The target user identifier.
-     * @param attributes Map of attributes to be included in the LoginTC
-     *            request. Null is permitted for no attributes.
+     * @param attributes Map of attributes to be included in the LoginTC request. Null is permitted for no attributes.
      * @return Newly created session.
      * @throws NoTokenLoginTCException
      * @throws LoginTCException
@@ -552,12 +586,9 @@ public class LoginTC {
      * 
      * @param domainId The target domain identifier.
      * @param userId The target user identifier.
-     * @param attributes Map of attributes to be included in the LoginTC
-     *            request. Null is permitted for no attributes.
-     * @param ipAddress The IP Address of the user originating the request
-     *            (optional)
-     * @param bypassCode A 9 digit code to bypass device authentication
-     *            (optional)
+     * @param attributes Map of attributes to be included in the LoginTC request. Null is permitted for no attributes.
+     * @param ipAddress The IP Address of the user originating the request (optional)
+     * @param bypassCode A 9 digit code to bypass device authentication (optional)
      * @return Newly created session.
      * @throws NoTokenLoginTCException
      * @throws LoginTCException
@@ -616,8 +647,7 @@ public class LoginTC {
      * 
      * @param domainId The target domain identifier.
      * @param username The target user username.
-     * @param attributes Map of attributes to be included in the LoginTC
-     *            request. Null is permitted for no attributes.
+     * @param attributes Map of attributes to be included in the LoginTC request. Null is permitted for no attributes.
      * @return Newly created session.
      * @throws NoTokenLoginTCException
      * @throws LoginTCException
@@ -633,12 +663,9 @@ public class LoginTC {
      * 
      * @param domainId The target domain identifier.
      * @param username The target user username.
-     * @param attributes Map of attributes to be included in the LoginTC
-     *            request. Null is permitted for no attributes.
-     * @param ipAddress The IP Address of the user originating the request
-     *            (optional)
-     * @param bypassCode A 9 digit code to bypass device authentication
-     *            (optional)
+     * @param attributes Map of attributes to be included in the LoginTC request. Null is permitted for no attributes.
+     * @param ipAddress The IP Address of the user originating the request (optional)
+     * @param bypassCode A 9 digit code to bypass device authentication (optional)
      * @param username The target user username.
      * @return Newly created session.
      * @throws NoTokenLoginTCException
@@ -801,8 +828,13 @@ public class LoginTC {
             String name = jsonObject.getString("name");
             String type = jsonObject.getString("type");
             String keyType = jsonObject.getString("keyType");
-            domain = new Domain(id, name, type, keyType);
-
+            Integer maxAllowedRetries = jsonObject.getInt("maxAllowedRetries");
+            Integer requestTimeout = jsonObject.getInt("requestTimeout");
+            Integer activationCodeExpiration = jsonObject.getInt("activationCodeExpiration");
+            Boolean requestPollingEnabled = jsonObject.getBoolean("requestPollingEnabled");
+            Boolean bypassEnabled = jsonObject.getBoolean("bypassEnabled");
+            domain = new Domain(id, name, type, keyType, maxAllowedRetries, requestTimeout, activationCodeExpiration,
+                    requestPollingEnabled, bypassEnabled);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -854,12 +886,22 @@ public class LoginTC {
                 domains.add(jsonDomains.getString(i));
             }
 
+            List<String> bypassCodes = new ArrayList<String>();
+
+            if (jsonObject.has("bypasscodes")) {
+                JSONArray jsonBypassCodes = jsonObject.getJSONArray("bypasscodes");
+
+                for (int i = 0; i < jsonBypassCodes.length(); i++) {
+                    bypassCodes.add(jsonBypassCodes.getString(i));
+                }
+            }
+
             String id = jsonObject.getString("id");
             String username = jsonObject.getString("username");
             String email = jsonObject.getString("email");
             String name = jsonObject.getString("name");
 
-            user = new User(id, username, email, name, domains);
+            user = new User(id, username, email, name, domains, bypassCodes);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -890,11 +932,20 @@ public class LoginTC {
                 for (int j = 0; j < jsonDomains.length(); j++) {
                     domains.add(jsonDomains.getString(j));
                 }
+                List<String> bypassCodes = new ArrayList<String>();
+
+                if (userObject.has("bypasscodes")) {
+                    JSONArray jsonBypassCodes = userObject.getJSONArray("bypasscodes");
+
+                    for (int k = 0; k < jsonBypassCodes.length(); k++) {
+                        bypassCodes.add(jsonBypassCodes.getString(k));
+                    }
+                }
                 String id = userObject.getString("id");
                 String username = userObject.getString("username");
                 String email = userObject.getString("email");
                 String name = userObject.getString("name");
-                users.add(new User(id, username, email, name, domains));
+                users.add(new User(id, username, email, name, domains, bypassCodes));
             }
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
@@ -905,6 +956,169 @@ public class LoginTC {
         }
 
         return users;
+    }
+
+    /**
+     * Get bypass code info.
+     * 
+     * @param bypassCodeId The bypass code's identifier.
+     * @return The requested bypass code.
+     * @throws LoginTCException
+     */
+    public BypassCode getBypassCode(String bypassCodeId) throws LoginTCException {
+        BypassCode bypassCode = null;
+
+        try {
+            JSONObject jsonObject = getJson(adminRestClient.get(String.format("/api/bypasscodes/%s", bypassCodeId)));
+
+            String id = jsonObject.getString("id");
+            String code = jsonObject.getString("code");
+            Date dtExpiry = DATE_FORMAT_ISO8601.parse(jsonObject.getString("dtExpiry"));
+            String user = jsonObject.getString("user");
+            Integer usesAllowed = jsonObject.getInt("usesAllowed");
+            Integer usesRemaining = jsonObject.getInt("usesRemaining");
+
+            bypassCode = new BypassCode(id, code, dtExpiry, user, usesAllowed, usesRemaining);
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (ParseException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return bypassCode;
+    }
+
+    /**
+     * Get list of bypass codes from user
+     * 
+     * @param userId The user identifier
+     * @return List of bypass codes for the user
+     * @throws LoginTCException
+     */
+    public List<BypassCode> getBypassCodes(String userId) throws LoginTCException {
+        List<BypassCode> bypassCodes = new ArrayList<BypassCode>();
+        try {
+            JSONArray jsonArray = getJsonArray(adminRestClient.get(String.format("/api/users/%s/bypasscodes", userId)));
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                String id = jsonObject.getString("id");
+                String code = jsonObject.getString("code");
+                Date dtExpiry = DATE_FORMAT_ISO8601.parse(jsonObject.getString("dtExpiry"));
+                String user = jsonObject.getString("user");
+                Integer usesAllowed = jsonObject.getInt("usesAllowed");
+                Integer usesRemaining = jsonObject.getInt("usesRemaining");
+
+                bypassCodes.add(new BypassCode(id, code, dtExpiry, user, usesAllowed, usesRemaining));
+            }
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (ParseException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return bypassCodes;
+    }
+
+    /**
+     * Create a new bypass code.
+     * 
+     * @param userId The user's identifier.
+     * @return The newly created bypass code.
+     * @throws LoginTCException
+     */
+    public BypassCode createBypassCode(String userId) throws LoginTCException {
+        return createBypassCode(userId, null, null);
+    }
+
+    /**
+     * Create a new bypass code.
+     * 
+     * @param userId The user's identifier.
+     * @param usesAllowed The number of times the bypass code can be used.
+     * @param expirationTime The time in minutes the bypass code is valid (0 means never expires).
+     * @return The newly created bypass code.
+     * @throws LoginTCException
+     */
+    public BypassCode createBypassCode(String userId, Integer usesAllowed, Integer expirationTime) throws LoginTCException {
+        BypassCode bypassCode = null;
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+
+            if (usesAllowed == null) {
+                usesAllowed = 1;
+            }
+
+            if (expirationTime == null) {
+                expirationTime = 0;
+            }
+
+            jsonObject.put("usesAllowed", usesAllowed);
+            jsonObject.put("expirationTime", expirationTime);
+
+            jsonObject = getJson(adminRestClient.post(String.format("/api/users/%s/bypasscodes", userId), jsonObject.toString()));
+
+            String id = jsonObject.getString("id");
+            String code = jsonObject.getString("code");
+            Date dtExpiry = DATE_FORMAT_ISO8601.parse(jsonObject.getString("dtExpiry"));
+            String user = jsonObject.getString("user");
+            usesAllowed = jsonObject.getInt("usesAllowed");
+            Integer usesRemaining = jsonObject.getInt("usesRemaining");
+
+            bypassCode = new BypassCode(id, code, dtExpiry, user, usesAllowed, usesRemaining);
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (ParseException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return bypassCode;
+    }
+
+    /**
+     * Delete a bypass code.
+     * 
+     * @param bypassCodeId The target bypass code's identifier.
+     * @throws LoginTCException
+     */
+    public void deleteBypassCode(String bypassCodeId) throws LoginTCException {
+        try {
+            adminRestClient.delete(String.format("/api/bypasscodes/%s", bypassCodeId));
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+    }
+
+    /**
+     * Delete all of user's bypass codes.
+     * 
+     * @param userId The target user's identifier.
+     * @throws LoginTCException
+     */
+    public void deleteBypassCodes(String userId) throws LoginTCException {
+        try {
+            adminRestClient.delete(String.format("/api/users/%s/bypasscodes", userId));
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
     }
 
 }

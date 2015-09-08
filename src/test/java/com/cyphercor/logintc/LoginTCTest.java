@@ -44,6 +44,11 @@ public class LoginTCTest {
     private final String domainName = "Cisco ASA";
     private final String domainType = "RADIUS";
     private final String domainKeyType = "PIN";
+    private final Integer domainMaxAllowedRetries = 5;
+    private final Integer domainRequestTimeout = 120;
+    private final Integer domainActivationCodeExpiration = 365;
+    private final Boolean domainRequestPollingEnabled = true;
+    private final Boolean domainBypassEnabled = true;
 
     private final String organizationName = "Chrome Stage";
 
@@ -286,7 +291,11 @@ public class LoginTCTest {
     @Test
     public void testGetDomain() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s", domainId);
-        String response = createJson("{'id':'%s','name':'%s','type':'%s','keyType':'%s'}", domainId, domainName, domainType, domainKeyType);
+        String response = createJson(
+                "{'id':'%s','name':'%s','type':'%s','keyType':'%s','maxAllowedRetries':'%d','requestTimeout':'%d','activationCodeExpiration':'%d','requestPollingEnabled':'%s','bypassEnabled':'%s'}",
+                domainId, domainName, domainType, domainKeyType, domainMaxAllowedRetries, domainRequestTimeout,
+                domainActivationCodeExpiration, domainRequestPollingEnabled,
+                domainBypassEnabled);
 
         when(mockedAdminRestClient.get(path)).thenReturn(response);
 
@@ -295,6 +304,11 @@ public class LoginTCTest {
         assertEquals(domainName, domain.getName());
         assertEquals(domainType, domain.getType());
         assertEquals(domainKeyType, domain.getKeyType());
+        assertEquals(domainMaxAllowedRetries, domain.getMaxAllowedRetries());
+        assertEquals(domainRequestTimeout, domain.getRequestTimeout());
+        assertEquals(domainActivationCodeExpiration, domain.getActivationCodeExpiration());
+        assertEquals(domainRequestPollingEnabled, domain.getRequestPollingEnabled());
+        assertEquals(domainBypassEnabled, domain.getBypassEnabled());
         verify(mockedAdminRestClient).get(path);
     }
 
