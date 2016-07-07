@@ -16,6 +16,7 @@ public class User {
     private String name = null;
     private List<String> domains = null;
     private List<String> bypassCodes = null;
+    private String hardware = null;
 
     /**
      * @param username A unique 1-128 character username.
@@ -35,14 +36,16 @@ public class User {
      * @param name The user's real name (or optionally username).
      * @param domains The user's domain memberships.
      * @param bypassCodes The user's bypass codes.
+     * @param hardwareToken The user's hardware token.
      */
-    public User(String id, String username, String email, String name, List<String> domains, List<String> bypassCodes) {
+    public User(String id, String username, String email, String name, List<String> domains, List<String> bypassCodes, String hardware) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.name = name;
         this.domains = domains;
         this.bypassCodes = bypassCodes;
+        this.hardware = hardware;
     }
 
     public void setEmail(String email) {
@@ -75,5 +78,9 @@ public class User {
 
     public List<String> getBypassCodes() {
         return this.bypassCodes;
+    }
+
+    public String getHardware() {
+        return this.hardware;
     }
 }

@@ -18,6 +18,7 @@ import com.cyphercor.logintc.AdminRestClient.AdminRestClientException;
 import com.cyphercor.logintc.AdminRestClient.RestAdminRestClientException;
 import com.cyphercor.logintc.resource.BypassCode;
 import com.cyphercor.logintc.resource.Domain;
+import com.cyphercor.logintc.resource.HardwareToken;
 import com.cyphercor.logintc.resource.Organization;
 import com.cyphercor.logintc.resource.Session;
 import com.cyphercor.logintc.resource.Token;
@@ -285,8 +286,9 @@ public class LoginTC {
             String username = jsonObject.getString("username");
             String email = jsonObject.getString("email");
             String name = jsonObject.getString("name");
+            String hardware = jsonObject.getString("hardware");
 
-            user = new User(id, username, email, name, domains, bypassCodes);
+            user = new User(id, username, email, name, domains, bypassCodes, hardware);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -339,8 +341,9 @@ public class LoginTC {
             username = jsonObject.getString("username");
             email = jsonObject.getString("email");
             name = jsonObject.getString("name");
+            String hardware = jsonObject.getString("hardware");
 
-            user = new User(id, username, email, name, domains, bypassCodes);
+            user = new User(id, username, email, name, domains, bypassCodes, hardware);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -398,8 +401,9 @@ public class LoginTC {
             String username = jsonObject.getString("username");
             email = jsonObject.getString("email");
             name = jsonObject.getString("name");
+            String hardware = jsonObject.getString("hardware");
 
-            user = new User(id, username, email, name, domains, bypassCodes);
+            user = new User(id, username, email, name, domains, bypassCodes, hardware);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -578,7 +582,7 @@ public class LoginTC {
      */
     public Session createSession(String domainId, String userId, Map<String, String> attributes) throws NoTokenLoginTCException,
             LoginTCException {
-        return createSession(domainId, userId, attributes, null, null);
+        return createSession(domainId, userId, attributes, null, null, null);
     }
 
     /**
@@ -593,7 +597,8 @@ public class LoginTC {
      * @throws NoTokenLoginTCException
      * @throws LoginTCException
      */
-    public Session createSession(String domainId, String userId, Map<String, String> attributes, String ipAddress, String bypassCode)
+    public Session createSession(String domainId, String userId, Map<String, String> attributes, String ipAddress, String bypassCode,
+            String otp)
             throws NoTokenLoginTCException,
             LoginTCException {
         Session session = null;
@@ -623,6 +628,8 @@ public class LoginTC {
 
             if (bypassCode != null && !bypassCode.isEmpty()) {
                 jsonObject.put("bypasscode", bypassCode);
+            } else if (otp != null && !otp.isEmpty()) {
+                jsonObject.put("otp", otp);
             }
 
             jsonObject = getJson(adminRestClient.post(String.format("/api/domains/%s/sessions", domainId), jsonObject.toString()));
@@ -655,7 +662,7 @@ public class LoginTC {
     public Session createSessionWithUsername(String domainId, String username, Map<String, String> attributes)
             throws NoTokenLoginTCException,
             LoginTCException {
-        return createSessionWithUsername(domainId, username, attributes, null, null);
+        return createSessionWithUsername(domainId, username, attributes, null, null, null);
     }
 
     /**
@@ -672,7 +679,7 @@ public class LoginTC {
      * @throws LoginTCException
      */
     public Session createSessionWithUsername(String domainId, String username, Map<String, String> attributes, String ipAddress,
-            String bypassCode)
+            String bypassCode, String otp)
             throws NoTokenLoginTCException,
             LoginTCException {
         Session session = null;
@@ -702,6 +709,8 @@ public class LoginTC {
 
             if (bypassCode != null && !bypassCode.isEmpty()) {
                 jsonObject.put("bypasscode", bypassCode);
+            } else if (otp != null && !otp.isEmpty()) {
+                jsonObject.put("otp", otp);
             }
 
             jsonObject = getJson(adminRestClient.post(String.format("/api/domains/%s/sessions", domainId), jsonObject.toString()));
@@ -900,8 +909,9 @@ public class LoginTC {
             String username = jsonObject.getString("username");
             String email = jsonObject.getString("email");
             String name = jsonObject.getString("name");
+            String hardware = jsonObject.getString("hardware");
 
-            user = new User(id, username, email, name, domains, bypassCodes);
+            user = new User(id, username, email, name, domains, bypassCodes, hardware);
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
         } catch (RestAdminRestClientException e) {
@@ -945,7 +955,9 @@ public class LoginTC {
                 String username = userObject.getString("username");
                 String email = userObject.getString("email");
                 String name = userObject.getString("name");
-                users.add(new User(id, username, email, name, domains, bypassCodes));
+                String hardware = userObject.getString("hardware");
+
+                users.add(new User(id, username, email, name, domains, bypassCodes, hardware));
             }
         } catch (JSONException e) {
             throw exceptionFactory.createException(e);
@@ -1121,4 +1133,243 @@ public class LoginTC {
         }
     }
 
+    /**
+     * Get hardware token info.
+     * 
+     * @param hardwareTokenId The hardware token's identifier.
+     * @return The requested hardware token
+     * @throws LoginTCException
+     */
+    public HardwareToken getHardwareToken(String hardwareTokenId) throws LoginTCException {
+        HardwareToken hardwareToken = null;
+
+        try {
+            JSONObject jsonObject = getJson(adminRestClient.get(String.format("/api/hardware/%s", hardwareTokenId)));
+
+            String id = jsonObject.getString("id");
+            String alias = jsonObject.getString("alias");
+            String serialNumber = jsonObject.getString("serialNumber");
+            String type = jsonObject.getString("type");
+            String timeStep = jsonObject.getString("timeStep");
+            String syncState = jsonObject.getString("syncState");
+            String user = jsonObject.getString("user");
+
+            hardwareToken = new HardwareToken(id, alias, serialNumber, type, timeStep, syncState, user);
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return hardwareToken;
+    }
+
+    /**
+     * Get user's hardware token info.
+     * 
+     * @param userId The user's identifier.
+     * @return The requested hardware token
+     * @throws LoginTCException
+     */
+    public HardwareToken getUserHardwareToken(String userId) throws LoginTCException {
+        HardwareToken hardwareToken = null;
+
+        try {
+            JSONObject jsonObject = getJson(adminRestClient.get(String.format("/api/users/%s/hardware", userId)));
+
+            String id = jsonObject.getString("id");
+            String alias = jsonObject.getString("alias");
+            String serialNumber = jsonObject.getString("serialNumber");
+            String type = jsonObject.getString("type");
+            String timeStep = jsonObject.getString("timeStep");
+            String syncState = jsonObject.getString("syncState");
+            String user = jsonObject.getString("user");
+
+            hardwareToken = new HardwareToken(id, alias, serialNumber, type, timeStep, syncState, user);
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return hardwareToken;
+    }
+
+    /**
+     * Get all hardware token info of an organization.
+     * 
+     * @return The requested hardware token
+     * @throws LoginTCException
+     */
+    public List<HardwareToken> getHardwareTokens() throws LoginTCException {
+
+        List<HardwareToken> hardwareTokens = new ArrayList<HardwareToken>();
+        try {
+            JSONArray jsonArray = getJsonArray(adminRestClient.get(String.format("/api/hardware")));
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject hardwareTokenObject = jsonArray.getJSONObject(i);
+
+                String id = hardwareTokenObject.getString("id");
+                String alias = hardwareTokenObject.getString("alias");
+                String serialNumber = hardwareTokenObject.getString("serialNumber");
+                String type = hardwareTokenObject.getString("type");
+                String timeStep = hardwareTokenObject.getString("timeStep");
+                String syncState = hardwareTokenObject.getString("syncState");
+                String user = hardwareTokenObject.getString("user");
+
+                hardwareTokens.add(new HardwareToken(id, alias, serialNumber, type, timeStep, syncState, user));
+            }
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return hardwareTokens;
+    }
+
+    /**
+     * Create a new hardware token.
+     * 
+     * @param alias A short-hand mutable name
+     * @param serialNumber The serial number of the hardware token
+     * @param type Can be either TOTP6 or TOTP8
+     * @param timeStep The number of seconds for the time step
+     * @return The newly created hardware token.
+     * @throws LoginTCException
+     */
+    public HardwareToken createHardwareToken(String alias, String serialNumber, String type, String timeStep, String seed)
+            throws LoginTCException {
+        HardwareToken hardwareToken = null;
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+
+            if (alias != null) {
+                jsonObject.put("alias", alias);
+            }
+
+            jsonObject.put("serialNumber", serialNumber);
+            jsonObject.put("type", type);
+            jsonObject.put("timeStep", timeStep);
+            jsonObject.put("seed", seed);
+
+            jsonObject = getJson(adminRestClient.post(String.format("/api/hardware"), jsonObject.toString()));
+
+            String id = jsonObject.getString("id");
+            alias = jsonObject.getString("alias");
+            serialNumber = jsonObject.getString("serialNumber");
+            type = jsonObject.getString("type");
+            timeStep = jsonObject.getString("timeStep");
+            String syncState = jsonObject.getString("syncState");
+            String user = jsonObject.getString("user");
+
+            hardwareToken = new HardwareToken(id, alias, serialNumber, type, timeStep, syncState, user);
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return hardwareToken;
+    }
+
+    /**
+     * Update a hardware token.
+     * 
+     * @param alias A short-hand mutable name
+     * @return The updated hardware token.
+     * @throws LoginTCException
+     */
+    public HardwareToken updateHardwareToken(String hardwareTokenId, String alias) throws LoginTCException {
+        HardwareToken hardwareToken = null;
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+
+            if (alias != null) {
+                jsonObject.put("alias", alias);
+            }
+
+            jsonObject = getJson(adminRestClient.put(String.format("/api/hardware/%s", hardwareTokenId), jsonObject.toString()));
+
+            String id = jsonObject.getString("id");
+            alias = jsonObject.getString("alias");
+            String serialNumber = jsonObject.getString("serialNumber");
+            String type = jsonObject.getString("type");
+            String timeStep = jsonObject.getString("timeStep");
+            String syncState = jsonObject.getString("syncState");
+            String user = jsonObject.getString("user");
+
+            hardwareToken = new HardwareToken(id, alias, serialNumber, type, timeStep, syncState, user);
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return hardwareToken;
+    }
+
+    /**
+     * Delete a hardware token.
+     * 
+     * @param hardwareTokenId The hardware token's identifier.
+     * @throws LoginTCException
+     */
+    public void deleteHardwareToken(String hardwareTokenId) throws LoginTCException {
+        try {
+            adminRestClient.delete(String.format("/api/hardware/%s", hardwareTokenId));
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+    }
+
+    /**
+     * Associate a hardware token with a user.
+     * 
+     * @param userId The user's identifier.
+     * @param hardwareTokenId The hardware token's identifier.
+     * @return The updated hardware token.
+     * @throws LoginTCException
+     */
+    public void associateHardwareToken(String userId, String hardwareTokenId) throws LoginTCException {
+        try {
+            adminRestClient.put(String.format("/api/users/%s/hardware/%s", userId, hardwareTokenId), null);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+    }
+
+    /**
+     * Disassociate a hardware token with a user.
+     * 
+     * @param userId The user's identifier.
+     * @throws LoginTCException
+     */
+    public void disassociateHardwareToken(String userId) throws LoginTCException {
+        try {
+            adminRestClient.delete(String.format("/api/users/%s/hardware", userId));
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+    }
 }

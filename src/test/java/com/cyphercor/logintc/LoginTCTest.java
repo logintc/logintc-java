@@ -29,7 +29,6 @@ import com.cyphercor.logintc.resource.User;
  * Tests for LoginTC client.
  */
 public class LoginTCTest {
-
     private LoginTC client = null;
     private AdminRestClient mockedAdminRestClient = null;
 
