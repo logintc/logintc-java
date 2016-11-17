@@ -113,7 +113,7 @@ public class LoginTCTest {
     public void testCreateUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/users", domainId, userId);
         String body = createJson("{'username':'%s','email':'%s','name':'%s'}", userUsername, userEmail, userName);
-        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':[]}", userId, userUsername, userEmail,
+        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':[],'hardware':''}", userId, userUsername, userEmail,
                 userName);
 
         when(mockedAdminRestClient.post(path, body)).thenReturn(response);
@@ -191,7 +191,7 @@ public class LoginTCTest {
     @Test
     public void testGetUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/users/%s", userId);
-        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s']}", userId, userUsername,
+        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s'],'hardware':''}", userId, userUsername,
                 userEmail, userName, domainId);
 
         when(mockedAdminRestClient.get(path)).thenReturn(response);
@@ -251,7 +251,7 @@ public class LoginTCTest {
     public void testUpdateUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/users/%s", userId);
         String body = createJson("{'email':'new@cyphercor.com','name':'New Name'}");
-        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':[]}", userId, userUsername,
+        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':[],'hardware':''}", userId, userUsername,
                 "new@cyphercor.com", "New Name");
 
         when(mockedAdminRestClient.put(path, body)).thenReturn(response);
@@ -314,7 +314,7 @@ public class LoginTCTest {
     @Test
     public void testGetDomainUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users/%s", domainId, userId);
-        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s']}", userId, userUsername,
+        String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s'],'hardware':''}", userId, userUsername,
                 userEmail, userName, domainId);
 
         when(mockedAdminRestClient.get(path)).thenReturn(response);
@@ -331,10 +331,13 @@ public class LoginTCTest {
     @Test
     public void testGetDomainUsers() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users", domainId);
+        String query = "page=1";
+
         String response = createJson(
-                "[{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s']},{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s']}]",
+                "[{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s'],'hardware':''},{'id':'%s','username':'%s','email':'%s','name':'%s','domains':['%s'],'hardware':''}]",
                 userId, userUsername, userEmail, userName, domainId, userId, userUsername, userEmail, userName, domainId);
-        when(mockedAdminRestClient.get(path)).thenReturn(response);
+
+        when(mockedAdminRestClient.get(path, query)).thenReturn(response);
 
         List<User> users = client.getDomainUsers(domainId);
 
@@ -350,7 +353,7 @@ public class LoginTCTest {
         assertEquals(userName, users.get(1).getName());
         assertEquals(1, users.get(1).getDomains().size());
         assertEquals(domainId, users.get(1).getDomains().get(0));
-        verify(mockedAdminRestClient).get(path);
+        verify(mockedAdminRestClient).get(path, query);
     }
 
     @Test

@@ -111,9 +111,13 @@ class AdminRestClient {
         HttpHost proxy = new HttpHost(proxyHost, proxyPort, "http");
         httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
     }
-
+    
     public String get(String path) throws AdminRestClientException {
-        HttpGet request = new HttpGet(genUri(path));
+        return get(path, null);
+    }
+
+    public String get(String path, String query) throws AdminRestClientException {
+        HttpGet request = new HttpGet(genUri(path, query));
 
         request.setHeader("Accept", CONTENT_TYPE);
         return new String(execute(request));
@@ -231,8 +235,12 @@ class AdminRestClient {
     }
 
     private URI genUri(String path) throws AdminRestClientException {
+        return genUri(path, null);
+    }
+    
+    private URI genUri(String path, String query) throws AdminRestClientException {
         try {
-            return new URI(scheme, null, host, port, path, null, null);
+            return new URI(scheme, null, host, port, path, query, null);
         } catch (URISyntaxException e) {
             throw new InternalAdminRestClientException(e);
         }

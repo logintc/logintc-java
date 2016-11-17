@@ -30,7 +30,7 @@ import com.cyphercor.logintc.resource.User;
 public class LoginTC {
 
     private static final String NAME = "LoginTC-Java";
-    private static final String VERSION = "1.1.2";
+    private static final String VERSION = "1.1.4";
 
     private static final SimpleDateFormat DATE_FORMAT_ISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -298,6 +298,111 @@ public class LoginTC {
         }
 
         return user;
+    }
+
+    /**
+     * Get user info.
+     * 
+     * @param username The user's username.
+     * @return The requested user.
+     * @throws LoginTCException
+     */
+    public User getUserByUsername(String username) throws LoginTCException {
+        User user = null;
+
+        try {
+            JSONObject jsonObject = getJson(adminRestClient.get(String.format("/api/users"), String.format("username=%s", username)));
+            JSONArray jsonDomains = jsonObject.getJSONArray("domains");
+
+            List<String> domains = new ArrayList<String>();
+
+            for (int i = 0; i < jsonDomains.length(); i++) {
+                domains.add(jsonDomains.getString(i));
+            }
+
+            List<String> bypassCodes = new ArrayList<String>();
+
+            if (jsonObject.has("bypasscodes")) {
+                JSONArray jsonBypassCodes = jsonObject.getJSONArray("bypasscodes");
+
+                for (int i = 0; i < jsonBypassCodes.length(); i++) {
+                    bypassCodes.add(jsonBypassCodes.getString(i));
+                }
+            }
+
+            String id = jsonObject.getString("id");
+            String userUsername = jsonObject.getString("username");
+            String email = jsonObject.getString("email");
+            String name = jsonObject.getString("name");
+            String hardware = jsonObject.getString("hardware");
+
+            user = new User(id, userUsername, email, name, domains, bypassCodes, hardware);
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return user;
+    }
+
+    /**
+     * Get list of users from organization
+     * 
+     * @return List of users
+     * @throws LoginTCException
+     */
+    public List<User> getUsers() throws LoginTCException {
+        return getUsers(1);
+    }
+
+    /**
+     * Get list of users from organization
+     * 
+     * @param page Page number to retrieve
+     * @return List of users
+     * @throws LoginTCException
+     */
+    public List<User> getUsers(Integer page) throws LoginTCException {
+        List<User> users = new ArrayList<User>();
+        try {
+            JSONArray jsonArray = getJsonArray(adminRestClient.get(String.format("/api/users"), String.format("page=%d", page)));
+
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject userObject = jsonArray.getJSONObject(i);
+                JSONArray jsonDomains = userObject.getJSONArray("domains");
+                List<String> domains = new ArrayList<String>();
+                for (int j = 0; j < jsonDomains.length(); j++) {
+                    domains.add(jsonDomains.getString(j));
+                }
+                List<String> bypassCodes = new ArrayList<String>();
+
+                if (userObject.has("bypasscodes")) {
+                    JSONArray jsonBypassCodes = userObject.getJSONArray("bypasscodes");
+
+                    for (int k = 0; k < jsonBypassCodes.length(); k++) {
+                        bypassCodes.add(jsonBypassCodes.getString(k));
+                    }
+                }
+                String id = userObject.getString("id");
+                String username = userObject.getString("username");
+                String email = userObject.getString("email");
+                String name = userObject.getString("name");
+                String hardware = userObject.getString("hardware");
+
+                users.add(new User(id, username, email, name, domains, bypassCodes, hardware));
+            }
+        } catch (JSONException e) {
+            throw exceptionFactory.createException(e);
+        } catch (RestAdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        } catch (AdminRestClientException e) {
+            throw exceptionFactory.createException(e);
+        }
+
+        return users;
     }
 
     /**
@@ -626,9 +731,9 @@ public class LoginTC {
                 jsonObject.put("ipAddress", ipAddress);
             }
 
-            if (bypassCode != null && !bypassCode.isEmpty()) {
+            if (bypassCode != null) {
                 jsonObject.put("bypasscode", bypassCode);
-            } else if (otp != null && !otp.isEmpty()) {
+            } else if (otp != null) {
                 jsonObject.put("otp", otp);
             }
 
@@ -931,9 +1036,22 @@ public class LoginTC {
      * @throws LoginTCException
      */
     public List<User> getDomainUsers(String domainId) throws LoginTCException {
+        return getDomainUsers(domainId, 1);
+    }
+
+    /**
+     * Get list of users from domain
+     * 
+     * @param domainId The domain identifier
+     * @param page Page number to retrieve
+     * @return List of users in the domain
+     * @throws LoginTCException
+     */
+    public List<User> getDomainUsers(String domainId, Integer page) throws LoginTCException {
         List<User> users = new ArrayList<User>();
         try {
-            JSONArray jsonArray = getJsonArray(adminRestClient.get(String.format("/api/domains/%s/users", domainId)));
+            JSONArray jsonArray = getJsonArray(adminRestClient.get(String.format("/api/domains/%s/users", domainId),
+                    String.format("page=%d", page)));
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject userObject = jsonArray.getJSONObject(i);
@@ -1206,10 +1324,21 @@ public class LoginTC {
      * @throws LoginTCException
      */
     public List<HardwareToken> getHardwareTokens() throws LoginTCException {
+        return getHardwareTokens(1);
+    }
+
+    /**
+     * Get all hardware token info of an organization.
+     * 
+     * @param page Page number to retrieve
+     * @return The requested hardware token
+     * @throws LoginTCException
+     */
+    public List<HardwareToken> getHardwareTokens(Integer page) throws LoginTCException {
 
         List<HardwareToken> hardwareTokens = new ArrayList<HardwareToken>();
         try {
-            JSONArray jsonArray = getJsonArray(adminRestClient.get(String.format("/api/hardware")));
+            JSONArray jsonArray = getJsonArray(adminRestClient.get(String.format("/api/hardware"), String.format("page=%d", page)));
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject hardwareTokenObject = jsonArray.getJSONObject(i);

@@ -1,5 +1,19 @@
 Changelog
 =========
+## 1.1.4
+
+Released on November 5th, 2016
+
+ * Add paging support
+ * Add get user by username
+ * Accept empty Bypass Codes and OTPs
+
+## 1.1.3
+
+Released on July 7th, 2016
+
+ * Add full hardware token support
+
 ## 1.1.2
 
 Released on September 8th, 2015
