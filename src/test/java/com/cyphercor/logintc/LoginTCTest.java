@@ -2,6 +2,7 @@
 package com.cyphercor.logintc;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,7 +82,7 @@ public class LoginTCTest {
                 userId);
         String response = createJson("{'id':'%s','state':'pending'}", sessionId);
 
-        when(mockedAdminRestClient.post(path, body)).thenReturn(response);
+        when(mockedAdminRestClient.post(eq(path), JSONObjectStringMatcher.eq(body))).thenReturn(response);
 
         Map<String, String> attributes = new LinkedHashMap<String, String>();
         attributes.put("Product", "Quinoa");
@@ -90,7 +92,7 @@ public class LoginTCTest {
         assertEquals(sessionId, session.getId());
         assertEquals(Session.State.PENDING, session.getState());
 
-        verify(mockedAdminRestClient).post(path, body);
+        verify(mockedAdminRestClient).post(eq(path), JSONObjectStringMatcher.eq(body));
     }
 
     @Test(expected = NoTokenLoginTCException.class)
@@ -99,7 +101,7 @@ public class LoginTCTest {
         String body = createJson("{'attributes':[{'value':'Quinoa','key':'Product'},{'value':'42','key':'Price'}],'user':{'id':'%s'}}",
                 userId);
 
-        when(mockedAdminRestClient.post(path, body)).thenThrow(
+        when(mockedAdminRestClient.post(eq(path), JSONObjectStringMatcher.eq(body))).thenThrow(
                 new RestAdminRestClientException(404, createJson("{'errors':[{'code':'api.error.notfound.token','message':''}]}")));
 
         Map<String, String> attributes = new LinkedHashMap<String, String>();
@@ -110,13 +112,12 @@ public class LoginTCTest {
     }
 
     @Test
-    public void testCreateUser() throws AdminRestClientException, LoginTCException {
+    public void testCreateUser() throws AdminRestClientException, LoginTCException, JSONException {
         String path = String.format("/api/users", domainId, userId);
         String body = createJson("{'username':'%s','email':'%s','name':'%s'}", userUsername, userEmail, userName);
         String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':[],'hardware':''}", userId, userUsername, userEmail,
                 userName);
-
-        when(mockedAdminRestClient.post(path, body)).thenReturn(response);
+        when(mockedAdminRestClient.post(eq(path), JSONObjectStringMatcher.eq(body))).thenReturn(response);
 
         User user = client.createUser(userUsername, userEmail, userName);
         assertEquals(userId, user.getId());
@@ -124,7 +125,7 @@ public class LoginTCTest {
         assertEquals(userEmail, user.getEmail());
         assertEquals(userName, user.getName());
 
-        verify(mockedAdminRestClient).post(path, body);
+        verify(mockedAdminRestClient).post(eq(path), JSONObjectStringMatcher.eq(body));
     }
 
     @Test
@@ -225,7 +226,7 @@ public class LoginTCTest {
         String path = String.format("/api/domains/%s/users", domainId);
         String body = createJson("[{'username':'user1','email':'user1@cyphercor.com','name':'user one'},{'username':'user2','email':'user2@cyphercor.com','name':'user two'}]");
 
-        when(mockedAdminRestClient.put(path, body)).thenReturn(null);
+        when(mockedAdminRestClient.put(eq(path), JSONObjectStringMatcher.eq(body))).thenReturn(null);
 
         List<User> users = new ArrayList<User>();
         users.add(new User("user1", "user1@cyphercor.com", "user one"));
@@ -233,7 +234,7 @@ public class LoginTCTest {
 
         client.setDomainUsers(domainId, users);
 
-        verify(mockedAdminRestClient).put(path, body);
+        verify(mockedAdminRestClient).put(eq(path), JSONObjectStringMatcher.eq(body));
     }
 
     @Test
@@ -254,13 +255,13 @@ public class LoginTCTest {
         String response = createJson("{'id':'%s','username':'%s','email':'%s','name':'%s','domains':[],'hardware':''}", userId, userUsername,
                 "new@cyphercor.com", "New Name");
 
-        when(mockedAdminRestClient.put(path, body)).thenReturn(response);
+        when(mockedAdminRestClient.put(eq(path), JSONObjectStringMatcher.eq(body))).thenReturn(response);
 
         User user = client.updateUser(userId, "new@cyphercor.com", "New Name");
         assertEquals("new@cyphercor.com", user.getEmail());
         assertEquals("New Name", user.getName());
 
-        verify(mockedAdminRestClient).put(path, body);
+        verify(mockedAdminRestClient).put(eq(path), JSONObjectStringMatcher.eq(body));
     }
 
     @Test
