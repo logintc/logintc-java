@@ -4,11 +4,9 @@ package com.cyphercor.logintc.resource;
 import java.util.Date;
 
 /**
- * A bypass code can be used as an alternative authentication method in the
- * event users misplace their 2nd factor device. A bypass code is a
- * user-specific 9 digit numerical code. Each user can have up to 5 different
- * codes. In order for a user to login using their bypass codes, the domain they
- * are accessing must have bypass code authentication enabled.
+ * A bypass code can be used as an alternative authentication method in the event users misplace their 2nd factor device. A bypass code is a
+ * user-specific 9 digit numerical code. Each user can have up to 5 different codes. In order for a user to login using their bypass codes,
+ * the domain they are accessing must have bypass code authentication enabled.
  */
 public class BypassCode {
 
@@ -36,26 +34,44 @@ public class BypassCode {
         this.usesRemaining = usesRemaining;
     }
 
+    /**
+     * @return The bypass code's identifier.
+     */
     public String getId() {
         return this.id;
     }
 
+    /**
+     * @return The 9 digit bypass code.
+     */
     public String getCode() {
         return this.code;
     }
 
+    /**
+     * @return The date which the bypass code expires.
+     */
     public Date getDtExpiry() {
         return this.dtExpiry;
     }
 
+    /**
+     * @return The user's identifier.
+     */
     public String getUser() {
         return this.user;
     }
 
+    /**
+     * @return The number of uses originally allowed.
+     */
     public Integer getUsesAllowed() {
         return this.usesAllowed;
     }
 
+    /**
+     * @return The number of uses remaining.
+     */
     public Integer getUsesRemaining() {
         return this.usesRemaining;
     }

@@ -9,13 +9,23 @@ import org.mockito.ArgumentMatcher;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+/**
+ * Match String representation of JSON data
+ */
 public class JSONObjectStringMatcher extends ArgumentMatcher<String> {
     private String expected;
 
+    /**
+     * @param expected
+     */
     public JSONObjectStringMatcher(String expected) {
         this.expected = expected;
     }
 
+    /**
+     * @param expected The expected value to match.
+     * @return The matcher.
+     */
     public static String eq(String expected) {
         return argThat(new JSONObjectStringMatcher(expected));
     }

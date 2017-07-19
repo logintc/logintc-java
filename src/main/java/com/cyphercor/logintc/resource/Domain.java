@@ -40,54 +40,93 @@ public class Domain {
         this.bypassEnabled = bypassEnabled;
     }
 
+    /**
+     * @return The domain's identifier.
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * @param id The domain's identifier.
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * @return The domain's name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @param name The domain's name.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * @return The domain's type.
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * @param type The domain's type.
+     */
     public void setType(String type) {
         this.type = type;
     }
 
+    /**
+     * @return The domain's key type.
+     */
     public String getKeyType() {
         return keyType;
     }
 
+    /**
+     * @param keyType The domain's key type.
+     */
     public void setKeyType(String keyType) {
         this.keyType = keyType;
     }
 
+    /**
+     * @return The domain's max allowed retries.
+     */
     public Integer getMaxAllowedRetries() {
         return maxAllowedRetries;
     }
 
+    /**
+     * @return The domain's request timeout.
+     */
     public Integer getRequestTimeout() {
         return requestTimeout;
     }
 
+    /**
+     * @return The domain's activation code expiration.
+     */
     public Integer getActivationCodeExpiration() {
         return activationCodeExpiration;
     }
 
+    /**
+     * @return The domain's request polling enabled.
+     */
     public Boolean getRequestPollingEnabled() {
         return requestPollingEnabled;
     }
 
+    /**
+     * @return The domain's bypass codes enabled.
+     */
     public Boolean getBypassEnabled() {
         return bypassEnabled;
     }

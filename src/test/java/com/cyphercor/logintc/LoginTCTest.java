@@ -59,12 +59,19 @@ public class LoginTCTest {
         return String.format(original.replace("'", "\""), args);
     }
 
+    /**
+     * 
+     */
     @Before
     public void initialize() {
         this.mockedAdminRestClient = mock(AdminRestClient.class);
         this.client = new LoginTC(null, null, true, mockedAdminRestClient);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testAddDomainUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users/%s", domainId, userId);
@@ -75,6 +82,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).put(path, null);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testCreateSession() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/sessions", domainId);
@@ -95,6 +106,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).post(eq(path), JSONObjectStringMatcher.eq(body));
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test(expected = NoTokenLoginTCException.class)
     public void testCreateSessionNoTokenLoginTCException() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/sessions", domainId, userId);
@@ -111,6 +126,11 @@ public class LoginTCTest {
         client.createSession(domainId, userId, attributes);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     * @throws JSONException
+     */
     @Test
     public void testCreateUser() throws AdminRestClientException, LoginTCException, JSONException {
         String path = String.format("/api/users", domainId, userId);
@@ -128,6 +148,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).post(eq(path), JSONObjectStringMatcher.eq(body));
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testCreateUserToken() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users/%s/token", domainId, userId);
@@ -142,6 +166,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).put(path, null);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testDeleteSession() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/sessions/%s", domainId, sessionId);
@@ -153,6 +181,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).delete(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testDeleteUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/users/%s", userId);
@@ -164,6 +196,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).delete(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testDeleteUserToken() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users/%s/token", domainId, userId);
@@ -175,6 +211,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).delete(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetSession() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/sessions/%s", domainId, sessionId);
@@ -189,6 +229,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).get(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/users/%s", userId);
@@ -207,6 +251,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).get(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetUserToken() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users/%s/token", domainId, userId);
@@ -221,6 +269,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).get(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testSetDomainUsers() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users", domainId);
@@ -237,6 +289,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).put(eq(path), JSONObjectStringMatcher.eq(body));
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testRemoveDomainUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users/%s", domainId, userId);
@@ -248,6 +304,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).delete(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testUpdateUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/users/%s", userId);
@@ -264,6 +324,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).put(eq(path), JSONObjectStringMatcher.eq(body));
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetPing() throws AdminRestClientException, LoginTCException {
         String path = "/api/ping";
@@ -276,6 +340,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).get(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetOrganization() throws AdminRestClientException, LoginTCException {
         String path = "/api/organization";
@@ -288,6 +356,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).get(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetDomain() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s", domainId);
@@ -312,6 +384,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).get(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetDomainUser() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users/%s", domainId, userId);
@@ -329,6 +405,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).get(path);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetDomainUsers() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/users", domainId);
@@ -357,6 +437,10 @@ public class LoginTCTest {
         verify(mockedAdminRestClient).get(path, query);
     }
 
+    /**
+     * @throws AdminRestClientException If the admin client encounters an error.
+     * @throws LoginTCException If LoginTC encounters an error.
+     */
     @Test
     public void testGetDomainImage() throws AdminRestClientException, LoginTCException {
         String path = String.format("/api/domains/%s/image", domainId);

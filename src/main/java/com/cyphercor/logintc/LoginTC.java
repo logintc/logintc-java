@@ -40,14 +40,23 @@ public class LoginTC {
     public class LoginTCException extends Exception {
         private static final long serialVersionUID = 3112741136967467568L;
 
+        /**
+         * @param message The error message.
+         */
         public LoginTCException(String message) {
             super(message);
         }
 
+        /**
+         * @param throwable The nested throwable.
+         */
         public LoginTCException(Throwable throwable) {
             super(throwable);
         }
 
+        /**
+         * Constructor for generic LoginTC client exception.
+         */
         public LoginTCException() {
             super();
         }
@@ -59,6 +68,9 @@ public class LoginTC {
     public class InternalLoginTCException extends LoginTCException {
         private static final long serialVersionUID = -7310070273601778377L;
 
+        /**
+         * @param throwable The nested throwable.
+         */
         public InternalLoginTCException(Throwable throwable) {
             super(throwable);
         }
@@ -73,6 +85,10 @@ public class LoginTC {
         private String errorCode = null;
         private String errorMessage = null;
 
+        /**
+         * @param errorCode The error code.
+         * @param errorMessage The error message.
+         */
         public ApiLoginTCException(String errorCode, String errorMessage) {
             super(String.format("%s: %s", errorCode, errorMessage));
 
@@ -80,10 +96,16 @@ public class LoginTC {
             this.errorMessage = errorMessage;
         }
 
+        /**
+         * @return The error code.
+         */
         public String getErrorCode() {
             return this.errorCode;
         }
 
+        /**
+         * @return The error message.
+         */
         public String getErrorMessage() {
             return this.errorMessage;
         }
@@ -96,6 +118,10 @@ public class LoginTC {
     public class NoTokenLoginTCException extends ApiLoginTCException {
         private static final long serialVersionUID = -5878018652693276417L;
 
+        /**
+         * @param errorCode The error code.
+         * @param errorMessage The error message.
+         */
         public NoTokenLoginTCException(String errorCode, String errorMessage) {
             super(errorCode, errorMessage);
         }
@@ -161,7 +187,7 @@ public class LoginTC {
      * 
      * @param json JSON string.
      * @return The parsed JSON object.
-     * @throws JSONException
+     * @throws JSONException If the input is not valid JSON
      */
     private JSONObject getJson(String json) throws JSONException {
         return (JSONObject) new JSONTokener(json).nextValue();
@@ -172,21 +198,21 @@ public class LoginTC {
      * 
      * @param json JSON string.
      * @return The parsed JSON array.
-     * @throws JSONException
+     * @throws JSONException If the input is not valid JSON
      */
     private JSONArray getJsonArray(String json) throws JSONException {
         return (JSONArray) new JSONTokener(json).nextValue();
     }
 
     /**
-     * @param apiKey
+     * @param apiKey The LoginTC organization API Key
      */
     public LoginTC(String apiKey) {
         this(apiKey, DEFAULT_HOST, true);
     }
 
     /**
-     * @param apiKey
+     * @param apiKey The LoginTC organization API Key
      * @param host The host and optional port
      */
     public LoginTC(String apiKey, String host) {
@@ -194,7 +220,7 @@ public class LoginTC {
     }
 
     /**
-     * @param apiKey
+     * @param apiKey The LoginTC organization API Key
      * @param host The host and optional port (e.g. "10.0.10.20:3333")
      * @param secure Specify false to use HTTP instead of HTTPS. Default true.
      */
@@ -203,7 +229,7 @@ public class LoginTC {
     }
 
     /**
-     * @param apiKey
+     * @param apiKey The LoginTC organization API Key
      * @param host The host and optional port (e.g. "10.0.10.20:3333")
      * @param secure Specify false to use HTTP instead of HTTPS. Default true.
      * @param adminRestClient The LoginTC Admin REST client.
@@ -235,18 +261,18 @@ public class LoginTC {
     }
 
     /**
-     * @param proxyHost
-     * @param proxyPort
+     * @param proxyHost The proxy host.
+     * @param proxyPort The proxy port.
      */
     public void setProxy(String proxyHost, int proxyPort) {
         adminRestClient.setProxy(proxyHost, proxyPort);
     }
 
     /**
-     * @param proxyHost
-     * @param proxyPort
-     * @param proxyUser
-     * @param proxyPassword
+     * @param proxyHost The proxy host.
+     * @param proxyPort The proxy post.
+     * @param proxyUser The proxy username.
+     * @param proxyPassword The proxy password for the user.
      */
     public void setProxy(String proxyHost, int proxyPort, String proxyUser, String proxyPassword) {
         adminRestClient.setProxy(proxyHost, proxyPort, proxyUser, proxyPassword);
@@ -257,7 +283,7 @@ public class LoginTC {
      * 
      * @param userId The user's identifier.
      * @return The requested user.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public User getUser(String userId) throws LoginTCException {
         User user = null;
@@ -305,7 +331,7 @@ public class LoginTC {
      * 
      * @param username The user's username.
      * @return The requested user.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public User getUserByUsername(String username) throws LoginTCException {
         User user = null;
@@ -352,7 +378,7 @@ public class LoginTC {
      * Get list of users from organization
      * 
      * @return List of users
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public List<User> getUsers() throws LoginTCException {
         return getUsers(1);
@@ -363,7 +389,7 @@ public class LoginTC {
      * 
      * @param page Page number to retrieve
      * @return List of users
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public List<User> getUsers(Integer page) throws LoginTCException {
         List<User> users = new ArrayList<User>();
@@ -412,7 +438,7 @@ public class LoginTC {
      * @param email The new user's email address.
      * @param name The new user's real name.
      * @return The newly created user.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public User createUser(String username, String email, String name) throws LoginTCException {
         User user = null;
@@ -467,7 +493,7 @@ public class LoginTC {
      * @param email The user's new email address. Use null if no change.
      * @param name The user's new name. Use null if no change.
      * @return The updated user.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public User updateUser(String userId, String email, String name) throws LoginTCException {
         User user = null;
@@ -524,7 +550,7 @@ public class LoginTC {
      * Delete a user.
      * 
      * @param userId The target user's identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void deleteUser(String userId) throws LoginTCException {
         try {
@@ -541,7 +567,7 @@ public class LoginTC {
      * 
      * @param domainId The target domain identifier.
      * @param userId The target user identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void addDomainUser(String domainId, String userId) throws LoginTCException {
         try {
@@ -558,8 +584,9 @@ public class LoginTC {
      * users will be added to the domain. The existing domain users that are not present in the users parameter will be removed from the
      * domain and their tokens will be revoked.
      * 
+     * @param domainId The target domain identifier.
      * @param users A list of users that should belong to the domain.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void setDomainUsers(String domainId, List<User> users) throws LoginTCException {
         try {
@@ -588,7 +615,7 @@ public class LoginTC {
      * 
      * @param domainId The target domain identifier.
      * @param userId The targert user identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void removeDomainUser(String domainId, String userId) throws LoginTCException {
         try {
@@ -606,7 +633,7 @@ public class LoginTC {
      * @param domainId The target domain identifier.
      * @param userId The target user identifier.
      * @return The newly created token.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public Token createUserToken(String domainId, String userId) throws LoginTCException {
         Token token = null;
@@ -635,7 +662,7 @@ public class LoginTC {
      * @param domainId The target domain identifier.
      * @param userId The target user identifier.
      * @return The requested session.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public Token getUserToken(String domainId, String userId) throws LoginTCException {
         Token token = null;
@@ -663,7 +690,7 @@ public class LoginTC {
      * 
      * @param domainId The target domain identifier.
      * @param userId The target user identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void deleteUserToken(String domainId, String userId) throws LoginTCException {
         try {
@@ -682,8 +709,8 @@ public class LoginTC {
      * @param userId The target user identifier.
      * @param attributes Map of attributes to be included in the LoginTC request. Null is permitted for no attributes.
      * @return Newly created session.
-     * @throws NoTokenLoginTCException
-     * @throws LoginTCException
+     * @throws NoTokenLoginTCException if the user does not have a token.
+     * @throws LoginTCException if the call fails.
      */
     public Session createSession(String domainId, String userId, Map<String, String> attributes) throws NoTokenLoginTCException,
             LoginTCException {
@@ -698,9 +725,10 @@ public class LoginTC {
      * @param attributes Map of attributes to be included in the LoginTC request. Null is permitted for no attributes.
      * @param ipAddress The IP Address of the user originating the request (optional)
      * @param bypassCode A 9 digit code to bypass device authentication (optional)
+     * @param otp A 6 or 8 digit code instead of device authentication (optional)
      * @return Newly created session.
-     * @throws NoTokenLoginTCException
-     * @throws LoginTCException
+     * @throws NoTokenLoginTCException if the user does not have a token.
+     * @throws LoginTCException if the call fails.
      */
     public Session createSession(String domainId, String userId, Map<String, String> attributes, String ipAddress, String bypassCode,
             String otp)
@@ -761,8 +789,8 @@ public class LoginTC {
      * @param username The target user username.
      * @param attributes Map of attributes to be included in the LoginTC request. Null is permitted for no attributes.
      * @return Newly created session.
-     * @throws NoTokenLoginTCException
-     * @throws LoginTCException
+     * @throws NoTokenLoginTCException if the user does not have a token.
+     * @throws LoginTCException if the call fails.
      */
     public Session createSessionWithUsername(String domainId, String username, Map<String, String> attributes)
             throws NoTokenLoginTCException,
@@ -778,10 +806,11 @@ public class LoginTC {
      * @param attributes Map of attributes to be included in the LoginTC request. Null is permitted for no attributes.
      * @param ipAddress The IP Address of the user originating the request (optional)
      * @param bypassCode A 9 digit code to bypass device authentication (optional)
+     * @param otp A 6 or 8 digit code instead of device authentication (optional)
      * @param username The target user username.
      * @return Newly created session.
-     * @throws NoTokenLoginTCException
-     * @throws LoginTCException
+     * @throws NoTokenLoginTCException if the user does not have a token.
+     * @throws LoginTCException if the call fails.
      */
     public Session createSessionWithUsername(String domainId, String username, Map<String, String> attributes, String ipAddress,
             String bypassCode, String otp)
@@ -841,7 +870,8 @@ public class LoginTC {
      * @param domainId The target domain identifier.
      * @param sessionId The target session identifier.
      * @return The requested session.
-     * @throws LoginTCException
+     * @throws NoTokenLoginTCException if the user does not have a token.
+     * @throws LoginTCException if the call fails.
      */
     public Session getSession(String domainId, String sessionId) throws NoTokenLoginTCException, LoginTCException {
         Session session = null;
@@ -868,7 +898,7 @@ public class LoginTC {
      * 
      * @param domainId The target domain identifier.
      * @param sessionId The target session identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void deleteSession(String domainId, String sessionId) throws LoginTCException {
         try {
@@ -884,7 +914,7 @@ public class LoginTC {
      * Get Ping status.
      * 
      * @return Status (true if OK).
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public boolean getPing() throws LoginTCException {
         boolean status = false;
@@ -907,7 +937,7 @@ public class LoginTC {
 
     /**
      * @return The requested Organization
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public Organization getOrganization() throws LoginTCException {
         Organization organization = null;
@@ -932,7 +962,7 @@ public class LoginTC {
      * 
      * @param domainId The domain identifier.
      * @return The requested Domain
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public Domain getDomain(String domainId) throws LoginTCException {
         Domain domain = null;
@@ -965,7 +995,7 @@ public class LoginTC {
      * 
      * @param domainId The domain identifier.
      * @return The requested image as a byte array
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public byte[] getDomainImage(String domainId) throws LoginTCException {
         byte[] image = null;
@@ -986,7 +1016,7 @@ public class LoginTC {
      * @param domainId The domain identifier.
      * @param userId The user's identifier.
      * @return The requested user.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public User getDomainUser(String domainId, String userId) throws LoginTCException {
         User user = null;
@@ -1033,7 +1063,7 @@ public class LoginTC {
      * 
      * @param domainId The domain identifier
      * @return List of users in the domain
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public List<User> getDomainUsers(String domainId) throws LoginTCException {
         return getDomainUsers(domainId, 1);
@@ -1045,7 +1075,7 @@ public class LoginTC {
      * @param domainId The domain identifier
      * @param page Page number to retrieve
      * @return List of users in the domain
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public List<User> getDomainUsers(String domainId, Integer page) throws LoginTCException {
         List<User> users = new ArrayList<User>();
@@ -1093,7 +1123,7 @@ public class LoginTC {
      * 
      * @param bypassCodeId The bypass code's identifier.
      * @return The requested bypass code.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public BypassCode getBypassCode(String bypassCodeId) throws LoginTCException {
         BypassCode bypassCode = null;
@@ -1127,7 +1157,7 @@ public class LoginTC {
      * 
      * @param userId The user identifier
      * @return List of bypass codes for the user
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public List<BypassCode> getBypassCodes(String userId) throws LoginTCException {
         List<BypassCode> bypassCodes = new ArrayList<BypassCode>();
@@ -1164,7 +1194,7 @@ public class LoginTC {
      * 
      * @param userId The user's identifier.
      * @return The newly created bypass code.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public BypassCode createBypassCode(String userId) throws LoginTCException {
         return createBypassCode(userId, null, null);
@@ -1177,7 +1207,7 @@ public class LoginTC {
      * @param usesAllowed The number of times the bypass code can be used.
      * @param expirationTime The time in minutes the bypass code is valid (0 means never expires).
      * @return The newly created bypass code.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public BypassCode createBypassCode(String userId, Integer usesAllowed, Integer expirationTime) throws LoginTCException {
         BypassCode bypassCode = null;
@@ -1223,7 +1253,7 @@ public class LoginTC {
      * Delete a bypass code.
      * 
      * @param bypassCodeId The target bypass code's identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void deleteBypassCode(String bypassCodeId) throws LoginTCException {
         try {
@@ -1239,7 +1269,7 @@ public class LoginTC {
      * Delete all of user's bypass codes.
      * 
      * @param userId The target user's identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void deleteBypassCodes(String userId) throws LoginTCException {
         try {
@@ -1256,7 +1286,7 @@ public class LoginTC {
      * 
      * @param hardwareTokenId The hardware token's identifier.
      * @return The requested hardware token
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public HardwareToken getHardwareToken(String hardwareTokenId) throws LoginTCException {
         HardwareToken hardwareToken = null;
@@ -1289,7 +1319,7 @@ public class LoginTC {
      * 
      * @param userId The user's identifier.
      * @return The requested hardware token
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public HardwareToken getUserHardwareToken(String userId) throws LoginTCException {
         HardwareToken hardwareToken = null;
@@ -1321,7 +1351,7 @@ public class LoginTC {
      * Get all hardware token info of an organization.
      * 
      * @return The requested hardware token
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public List<HardwareToken> getHardwareTokens() throws LoginTCException {
         return getHardwareTokens(1);
@@ -1332,7 +1362,7 @@ public class LoginTC {
      * 
      * @param page Page number to retrieve
      * @return The requested hardware token
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public List<HardwareToken> getHardwareTokens(Integer page) throws LoginTCException {
 
@@ -1371,8 +1401,9 @@ public class LoginTC {
      * @param serialNumber The serial number of the hardware token
      * @param type Can be either TOTP6 or TOTP8
      * @param timeStep The number of seconds for the time step
+     * @param seed A hexadecimal representation of the TOTP secret
      * @return The newly created hardware token.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public HardwareToken createHardwareToken(String alias, String serialNumber, String type, String timeStep, String seed)
             throws LoginTCException {
@@ -1415,9 +1446,10 @@ public class LoginTC {
     /**
      * Update a hardware token.
      * 
+     * @param hardwareTokenId The hardware token identifier
      * @param alias A short-hand mutable name
      * @return The updated hardware token.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public HardwareToken updateHardwareToken(String hardwareTokenId, String alias) throws LoginTCException {
         HardwareToken hardwareToken = null;
@@ -1455,7 +1487,7 @@ public class LoginTC {
      * Delete a hardware token.
      * 
      * @param hardwareTokenId The hardware token's identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void deleteHardwareToken(String hardwareTokenId) throws LoginTCException {
         try {
@@ -1472,8 +1504,7 @@ public class LoginTC {
      * 
      * @param userId The user's identifier.
      * @param hardwareTokenId The hardware token's identifier.
-     * @return The updated hardware token.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void associateHardwareToken(String userId, String hardwareTokenId) throws LoginTCException {
         try {
@@ -1490,7 +1521,7 @@ public class LoginTC {
      * Disassociate a hardware token with a user.
      * 
      * @param userId The user's identifier.
-     * @throws LoginTCException
+     * @throws LoginTCException if the call fails.
      */
     public void disassociateHardwareToken(String userId) throws LoginTCException {
         try {

@@ -4,16 +4,17 @@ package com.cyphercor.logintc.resource;
 import java.util.Locale;
 
 /**
- * A token object is a LoginTC credential tied to a domain and user pair. The
- * LoginTC credential lives on the LoginTC mobile app on the user's mobile
- * device.
+ * A token object is a LoginTC credential tied to a domain and user pair. The LoginTC credential lives on the LoginTC mobile app on the
+ * user's mobile device.
  */
 public class Token {
 
+    /**
+     * Various states that Token can take on.
+     */
     public static enum State {
         /**
-         * A code to load the token has been issued to a user but it has not yet
-         * been loaded.
+         * A code to load the token has been issued to a user but it has not yet been loaded.
          */
         PENDING,
 
@@ -38,10 +39,16 @@ public class Token {
         }
     }
 
+    /**
+     * @return The token's state.
+     */
     public State getState() {
         return this.state;
     }
 
+    /**
+     * @return The token's code.
+     */
     public String getCode() {
         return this.code;
     }
