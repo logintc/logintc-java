@@ -807,7 +807,6 @@ public class LoginTC {
      * @param ipAddress The IP Address of the user originating the request (optional)
      * @param bypassCode A 9 digit code to bypass device authentication (optional)
      * @param otp A 6 or 8 digit code instead of device authentication (optional)
-     * @param username The target user username.
      * @return Newly created session.
      * @throws NoTokenLoginTCException if the user does not have a token.
      * @throws LoginTCException if the call fails.

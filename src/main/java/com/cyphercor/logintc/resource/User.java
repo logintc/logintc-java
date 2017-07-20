@@ -49,7 +49,7 @@ public class User {
     }
 
     /**
-     * @param email
+     * @param email The user's email.
      */
     public void setEmail(String email) {
         this.email = email;
